@@ -1,0 +1,21 @@
+{
+    "name": "saved-database",
+    "version": "1.0.0",
+    "description": "Nope",
+    "main": "index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+      "type": "git",
+      "url": "saved-database"
+    },
+    "keywords": [
+      "database",
+      "json",
+      "saved"
+    ],
+    "author": "Movies22 & Lorixo",
+    "license": "MIT"
+  }
+  

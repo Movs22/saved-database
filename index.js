@@ -9,7 +9,7 @@ class DatabaseError extends Error {
 
 
 /**
- * Creates a Database on the specified file location.
+ * Creates a Database on the specified file location
  * @example 
  * const db = new Database("./db.json", {backups: "daily"})
  * @constructor
@@ -25,6 +25,7 @@ module.exports = function (location, options) {
         database = {}
     }
     fs.writeFileSync(location, JSON.stringify(database))
+    
     /**
     * The database name
     * @example 
@@ -33,7 +34,9 @@ module.exports = function (location, options) {
         * @returns {string} name - The name of the database.
     */
     this.name = location.split("/")[location.split("/").length - 1]
+    
     this.location = location
+    
     /**
     * Database options, such as amount of backups
     * @example 
@@ -63,7 +66,7 @@ module.exports = function (location, options) {
     * @example 
     * console.log(db.exists("test.status")) // true
     * @param {string} key - The key to check.
-    * @returns {boolean} exists - True if the key exists
+    * @returns {boolean} exists - True if the key exists.
     */
     this.exists = function(key) {
         try {

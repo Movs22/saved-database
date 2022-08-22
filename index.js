@@ -84,6 +84,7 @@ module.exports = function (location, options) {
     */
     this.write = function(key, value) {
         if(!key || !value) throw new DatabaseError("Please send a valid key and a value to set.")
+        if(typeof key != "string") throw new DatabaseError("Key name must be a string.")
         try {
             eval("database." + key + " = value")
             fs.writeFileSync(location, JSON.stringify(database))

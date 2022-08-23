@@ -9,14 +9,25 @@ class DatabaseError extends Error {
 
 
 /**
- * Creates a Database on the specified file location.
+ * Creates a Database on the specified file location
  * @example 
- * const db = new Database("./db.json", {backups: "daily"})
+ * const db = new Database("./db.json", { formatting: "compact" })
  * @constructor
  * @param {string} location - The location of the database.
- * @param {object} options - The database options, such as backups.
+ * @param {object} [options] - The database options, such as formatting.
+ * @param {string} [options.formatting=compact] - The formatting settings for the JSON file.
  */
 module.exports = function (location, options) {
+	function stringifyWithOptions(databaseOBJ) {
+	    if(options.formatting) {
+		    if(options.formatting === "compact") {
+				return JSON.stringify(databaseOBJ)
+		    } else if(options.formatting === "expanded") {
+				return JSON.stringify(databaseOBJ, null, 2)
+		    } else { throw new DatabaseError("Invalid formatting type.") }
+	    } else { return JSON.stringify(databaseOBJ) }
+	}
+    
     if(!location) throw new DatabaseError("Argument missing. Please put a location when creating a database.")
     let database
     try {
@@ -25,6 +36,7 @@ module.exports = function (location, options) {
         database = {}
     }
     fs.writeFileSync(location, JSON.stringify(database))
+    
     /**
     * The database name
     * @example 
@@ -33,7 +45,9 @@ module.exports = function (location, options) {
         * @returns {string} name - The name of the database.
     */
     this.name = location.split("/")[location.split("/").length - 1]
+    
     this.location = location
+    
     /**
     * Database options, such as amount of backups
     * @example 
@@ -51,6 +65,7 @@ module.exports = function (location, options) {
     */
     this.read = function(key) {
         if(!key) throw new DatabaseError("Please send a valid key.")
+        if(typeof key != "string") throw new DatabaseError("Key name must be a string.")
         try {
             return eval("database." + key)
         } catch {
@@ -63,7 +78,7 @@ module.exports = function (location, options) {
     * @example 
     * console.log(db.exists("test.status")) // true
     * @param {string} key - The key to check.
-    * @returns {boolean} exists - True if the key exists
+    * @returns {boolean} exists - True if the key exists.
     */
     this.exists = function(key) {
         try {
@@ -81,11 +96,61 @@ module.exports = function (location, options) {
     */
     this.write = function(key, value) {
         if(!key || !value) throw new DatabaseError("Please send a valid key and a value to set.")
+        if(typeof key != "string") throw new DatabaseError("Key name must be a string.")
         try {
             eval("database." + key + " = value")
+            fs.writeFileSync(location, stringifyWithOptions(database))
+        } catch(e) {
+            throw new DatabaseError(e)
+        }
+    }
+
+    /**
+    * Returns the value of the current database
+    * @example 
+    * db.value() 
+    * @readonly
+    */
+    this.value = function() {
+        try {
+            return eval("database")
+        } catch {
+            return null
+        }
+    }
+
+    /**
+    * Cleans the database
+    * @example 
+    * db.clear()
+    */
+    this.clear = function() {
+        try {
+            database = {}
             fs.writeFileSync(location, JSON.stringify(database))
         } catch(e) {
             throw new DatabaseError(e)
         }
+    }
+
+    /**
+    * Deletes one or more keys from the database
+    * @example 
+    * db.delete("door")
+    * db.delete(["window", "door"])
+    * @param (string|string[]) key
+    * @todo Error handling
+    */
+    this.delete = function(key) {
+	if(!key) throw new DatabaseError("Please send a valid key to delete")
+	if(typeof key == "string") {
+		delete database[`${key}`]
+		fs.writeFileSync(location, JSON.stringify(database))
+	} else if(typeof key == "object") {
+		for (const keyToChange of key) {
+			delete database[`${keyToChange}`]
+		}
+		fs.writeFileSync(location, JSON.stringify(database))
+	} else { throw new DatabaseError("Please send a valid key to delete") }
     }
 }

@@ -11,11 +11,12 @@ class DatabaseError extends Error {
 /**
  * Creates a Database on the specified file location
  * @example 
- * const db = new Database("./db.json", { formatting: "compact" })
+ * const db = new Database("./db.json", { formatting: "compact", backups: "daily" })
  * @constructor
  * @param {string} location - The location of the database.
  * @param {object} [options] - The database options, such as formatting.
  * @param {string} [options.formatting=compact] - The formatting settings for the JSON file.
+ * @param {string} [options.backups=daily] - The backup settings for the JSON file.
  */
 module.exports = function (location, options) {
 	function stringifyWithOptions(databaseOBJ) {
@@ -37,6 +38,20 @@ module.exports = function (location, options) {
     }
     fs.writeFileSync(location, JSON.stringify(database))
     
+    function backup(time) {
+	if(time === "daily") {
+		let d = new Date()
+		if(!fs.readFileSync(location.split["/"].pop().join("/") + "/backups/" + location.split["/"][-1] + "-" + d.getDate() + "-" + d.getMonth() + d.getYear()) {
+		     fs.writeFileSync(location.split["/"].pop().join("/") + "/backups/" + location.split["/"][-1] + "-" + d.getDate() + "-" + d.getMonth() + d.getYear(), JSON.stringify(database))
+		}
+	}
+	if(time === "monthly") {
+		let d = new Date()
+		if(!fs.readFileSync(location.split["/"].pop().join("/") + "/backups/" + location.split["/"][-1] + "-" + "00" + "-" + d.getMonth() + d.getYear()) {
+		     fs.writeFileSync(location.split["/"].pop().join("/") + "/backups/" + location.split["/"][-1] + "-" + "00" + "-" + d.getMonth() + d.getYear(), JSON.stringify(database))
+		}
+	}
+    }
     /**
     * The database name
     * @example 
@@ -51,7 +66,7 @@ module.exports = function (location, options) {
     /**
     * Database options, such as amount of backups
     * @example 
-    * console.log(db.options) // {backups: "daily"}
+    * console.log(db.options) // {format: "expanded", backups: "daily"}
     * @readonly
         * @returns {object} options - The options of the database.
     */

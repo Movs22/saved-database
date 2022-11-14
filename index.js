@@ -38,19 +38,14 @@ module.exports = function (location, options) {
     }
     fs.writeFileSync(location, JSON.stringify(database))
     
-    function backup(time) {
-	if(time === "daily") {
+    function backup(backups) {
+	if(backups === "daily") {
 		let d = new Date()
-		if(!fs.readFileSync(location.split["/"].pop().join("/") + "/backups/" + location.split["/"][-1] + "-" + d.getDate() + "-" + d.getMonth() + d.getYear()) {
-		     fs.writeFileSync(location.split["/"].pop().join("/") + "/backups/" + location.split["/"][-1] + "-" + d.getDate() + "-" + d.getMonth() + d.getYear(), JSON.stringify(database))
-		}
-	}
-	if(time === "monthly") {
+		fs.writeFileSync(location.split["/"].pop().join("/") + "/backups/" + location.split["/"][-1] + "-" + d.getDate() + "-" + d.getMonth() + d.getYear(), JSON.stringify(database))
+	} else if(backups === "monthly") {
 		let d = new Date()
-		if(!fs.readFileSync(location.split["/"].pop().join("/") + "/backups/" + location.split["/"][-1] + "-" + "00" + "-" + d.getMonth() + d.getYear()) {
-		     fs.writeFileSync(location.split["/"].pop().join("/") + "/backups/" + location.split["/"][-1] + "-" + "00" + "-" + d.getMonth() + d.getYear(), JSON.stringify(database))
-		}
-	}
+		fs.writeFileSync(location.split["/"].pop().join("/") + "/backups/" + location.split["/"][-1] + "-" + "00" + "-" + d.getMonth() + d.getYear(), JSON.stringify(database))
+	} else throw new DatabaseError("Invalid backup option. It should be either daily or monthly")
     }
     /**
     * The database name
@@ -110,6 +105,7 @@ module.exports = function (location, options) {
     * @param {string} key
     */
     this.write = function(key, value) {
+	backup(this.options.backups)
         if(!key || !value) throw new DatabaseError("Please send a valid key and a value to set.")
         if(typeof key != "string") throw new DatabaseError("Key name must be a string.")
         try {

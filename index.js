@@ -57,7 +57,7 @@ module.exports = function (location, options) {
 		let current = Math.floor(Date.now()).toString() //Saving current unix time (in milliseconds)
 		this.write('LAST_BACKUP', current, false) //Saving in db last backup (current one)
 		try {
-			fs.writeFileSync(options.backupsDirectory + this.name + '_BACKUP_' + current + '.json', stringifyWithOptions(this.value()))
+      fs.writeFileSync(options.backupDirectory + this.name + '_BACKUP_' + current + '.json', stringifyWithOptions(this.value()))
 		} catch (error) {
 			throw new DatabaseError('An error occurred while saving a backup. Please make sure the backupDirectory is correct.\n' + error)
 		}
@@ -99,15 +99,6 @@ module.exports = function (location, options) {
     */
     this.options = options || {}
 
-	/**
-    * Returns the unix time in milliseconds of the last backup
-    * @example 
-    * console.log(db.lastBackup) // 1668528491
-    * @readonly
-        * @returns {string} time - The time in unix time.
-    */
-    this.lastBackup = this.read('LAST_BACKUP')
-
     /**
     * Reads a specific key of the database
     * @example 
@@ -138,7 +129,16 @@ module.exports = function (location, options) {
             return false
         }
     }
-	
+  
+	  /**
+    * Returns the unix time in milliseconds of the last backup
+    * @example 
+    * console.log(db.lastBackup) // 1668528491
+    * @readonly
+        * @returns {string} time - The time in unix time.
+    */
+    this.lastBackup = this.read('LAST_BACKUP')
+  
     /**
     * Writes a value to the specified key
     * @example 
